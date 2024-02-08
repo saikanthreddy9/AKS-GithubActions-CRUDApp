@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-api
+spec:
+  selector:
+    matchLabels:
+      app: server-api
+  template:
+    metadata:
+      labels:
+        app: server-api
+    spec:
+      terminationGracePeriodSeconds: 5
+      initContainers:
+      - name: init-db
+        image: busybox
+        command: ['sh', '-c', 'sleep 30s']
+      containers:
+      - name: server
+        image: balajijudaya/usersapp:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MYSQL_HOST
+          value: "database"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: server-api
+  ports:
+  - name: service
+    port: 8080
+    targetPort: 8080
+

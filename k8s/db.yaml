@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+spec:
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      containers:
+        - name: database
+          image: mysql:5.7
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 3306
+          env:
+          - name: MYSQL_DATABASE
+            value: "testdb"
+          - name: MYSQL_USER
+            value: "testuser"
+          - name: MYSQL_PASSWORD
+            value: "testpassword"
+          - name: MYSQL_ROOT_PASSWORD
+            value: "testpassword"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+spec:
+  type: ClusterIP
+  selector:
+    app: database
+  ports:
+  - name: databse
+    port: 3306
+    targetPort: 3306
